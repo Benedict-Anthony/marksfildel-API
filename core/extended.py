@@ -40,7 +40,8 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,
-    "LIMIT":10
+    "LIMIT":10,
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -58,6 +59,14 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MarksFildels Integrated Services API',
+    'DESCRIPTION': 'This is the api documentation of Marksfidels Intergrated Services',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
 
 # DJANGORESIZED_DEFAULT_SIZE = [1920, 1080]
 # DJANGORESIZED_DEFAULT_SCALE = 0.5

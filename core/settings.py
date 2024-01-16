@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     'django_seed',
     # 'rest_framework_filters',
+    'drf_spectacular',
     "django_filters",
     
 
