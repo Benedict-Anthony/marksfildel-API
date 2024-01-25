@@ -1,4 +1,4 @@
-from housing.models import Address, House, HouseFeatures, HouseType,Images
+from housing.models import Address, House, Features, HouseType,Images
 from rest_framework import serializers
 
 from serializers.public.shared import AddressSerializer, CategorySerializer, OwnerReadOnlySerializer
@@ -9,11 +9,18 @@ class ImagesSerializer(serializers.ModelSerializer):
         model = Images
         fields = ("id", "image")
 
+    def create(self, validated_data):
+        print(validated_data)
+        house = House.objects.all()[3]
+        image = Images.objects.create(**validated_data, house=house)
+        return image
+    
 
-class HouseFeaturesSerializer(serializers.ModelSerializer):
+
+class FeaturesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HouseFeatures
-        fields = ("id", "number_of_bedrooms", "number_of_bathrooms", "number_of_packing_space", "balcony")
+        model = Features
+        fields = ("id", "bedrooms", "bathrooms", "packing_space", "balcony")
 
 
 class HouseTypeSerializer(serializers.ModelSerializer):
@@ -35,7 +42,7 @@ class HouseDetailSerializer(serializers.ModelSerializer):
     images = ImagesSerializer(many=True, source="house_images") 
     category = CategorySerializer()
     type = HouseTypeSerializer()
-    features = HouseFeaturesSerializer()
+    features = FeaturesSerializer()
     address = AddressSerializer()
     manager = OwnerReadOnlySerializer(read_only=True, source="owner.user_profile")
     class Meta:
@@ -45,7 +52,7 @@ class HouseDetailSerializer(serializers.ModelSerializer):
 class HouseSearchSerializer(serializers.ModelSerializer):
     category = CategorySerializer()
     type = HouseTypeSerializer()
-    features = HouseFeaturesSerializer()
+    features = FeaturesSerializer()
     address = AddressSerializer()
     class Meta:
         model = House
@@ -54,7 +61,7 @@ class HouseSearchSerializer(serializers.ModelSerializer):
 
 class HouseCRUDSerializer(serializers.ModelSerializer):
     house_images = ImagesSerializer(many=True) 
-    features = HouseFeaturesSerializer()
+    features = FeaturesSerializer()
     address = AddressSerializer()
     class Meta:
         model = House
@@ -68,28 +75,32 @@ class HouseCRUDSerializer(serializers.ModelSerializer):
         # DEAL WITH IMAGES LATER
         images = validated_data.pop("house_images")
 
+        
         address = Address.objects.create(**address)
 
         house = House.objects.create(**validated_data, address=address)
 
         if features:
-            features = HouseFeatures.objects.create(**features)
+            features = Features.objects.create(**features)
             house.features=features
             house.save()
         
+        for img in images:
+            Images.objects.create(*img, house=house)
+            
+        
         return house
     
+    def validate_house_images(self, value):
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Invalid image format")
+        if len(value) > 6:
+            raise serializers.ValidationError("number of images must not be more than six")
+        if len(value) <3:
+            raise serializers.ValidationError("number of images must be at least three")
+
+        return value
 
     def update(self, instance, validated_data):
-        # new_address = validated_data.pop("address")
-        # new_features = validated_data.pop("features")
-
         return super().update(instance, validated_data)
 
-    # "features": {
-	# 	"id": "a30793670a",
-	# 	"number_of_bedrooms": 4,
-	# 	"number_of_bathrooms": 3,
-	# 	"number_of_packing_space": 2,
-	# 	"balcony": true
-	# },

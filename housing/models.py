@@ -3,8 +3,9 @@ from django.utils.translation import gettext_lazy as _
 from account.models import Account
 from lib.custom_id import custom_id
 from django.utils.text import slugify
-
+from PIL import Image, ImageOps
 from housing.manager import PropertiesManager
+from lib.resize_image import resize_image
 
 
 class Address(models.Model):
@@ -37,11 +38,11 @@ class HouseType(models.Model):
         return self.type
 
 
-class HouseFeatures(models.Model):
+class Features(models.Model):
     id = models.CharField(max_length=10, primary_key=True, default=custom_id, editable=False)
-    number_of_bedrooms = models.IntegerField(_("number of bedrooms"), null=True, blank=True)
-    number_of_bathrooms = models.IntegerField(_("number of bathrooms"), null=True, blank=True)
-    number_of_packing_space = models.IntegerField(_("number of packing space"), null=True, blank=True)
+    bedrooms = models.IntegerField(_("number of bedrooms"), null=True, blank=True)
+    bathrooms = models.IntegerField(_("number of bathrooms"), null=True, blank=True)
+    packing_space = models.IntegerField(_("number of packing space"), null=True, blank=True)
     balcony = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -56,7 +57,7 @@ class House(models.Model):
     owner = models.ForeignKey(Account, on_delete=models.DO_NOTHING, related_name="house_owner")
     address = models.ForeignKey(Address, on_delete=models.CASCADE, related_name="house_address")
     category = models.ForeignKey(Category,  on_delete=models.CASCADE, related_name="category")
-    features = models.OneToOneField(HouseFeatures, null=True, blank=True, related_name="house_features", on_delete=models.SET_NULL)
+    features = models.OneToOneField(Features, null=True, blank=True, related_name="house_features", on_delete=models.SET_NULL)
     banner = models.ImageField(_("main image"), upload_to="listings", null=True, blank=True)
     type = models.ForeignKey(HouseType, on_delete=models.SET_NULL, null=True)
     description = models.TextField(_("description of the house"))
@@ -83,9 +84,6 @@ class House(models.Model):
     
    
 
-
-
-    
 class Images(models.Model):
     id = models.CharField(max_length=10, primary_key=True, default=custom_id, editable=False)
     image = models.ImageField(_("image"), upload_to="listings")
@@ -99,3 +97,8 @@ class Images(models.Model):
             return f"image for {self.house.title}"
         except:
             return self.id
+        
+
+    def save(self,*args, **kwargs ):
+        self.image = resize_image(self.image)
+        return super().save(*args, **kwargs)

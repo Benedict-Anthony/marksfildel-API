@@ -1,14 +1,14 @@
-from housing.models import Address, House, HouseFeatures
+from housing.models import Address, House, Features, Images
 from mixins.crudMixns import RetriveUpdateDestroyAPIView
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.views import APIView
 from mixins.managerQueryMixins import ManagerQueryAPI
 from mixins.searchMixins import SearchMixin
-from serializers.house.house import HouseCRUDSerializer, HouseDetailSerializer, HouseListSerializer, HouseSearchSerializer
+from serializers.house.house import HouseCRUDSerializer, HouseDetailSerializer, HouseListSerializer, HouseSearchSerializer, ImagesSerializer
 from serializers.public.shared import AddressSerializer
-from serializers.house.house import HouseFeaturesSerializer 
+from serializers.house.house import FeaturesSerializer 
 from rest_framework.response import Response
-
+from rest_framework.parsers import FormParser, MultiPartParser
 
 class HouseListView(ListCreateAPIView):
     serializer_class = HouseListSerializer
@@ -29,7 +29,7 @@ class HouseListView(ListCreateAPIView):
 class HouseDetailView(RetriveUpdateDestroyAPIView):
     serializer_class = HouseDetailSerializer
     address_serializer_class = AddressSerializer
-    features_serializer_class = HouseFeaturesSerializer
+    features_serializer_class = FeaturesSerializer
     queryset = House.available.select_related("address", "category", "features", "owner__user_profile", "type")
     lookup_field = "slug"
     lookup_url_kwarg = "slug"
@@ -62,9 +62,9 @@ class HouseDetailView(RetriveUpdateDestroyAPIView):
                 new_features = request.data.get("features", None)
                 if new_features:
                     self.update_queryset = request.data.pop("features")
-                    old_features = HouseFeatures.objects.get(id=house.features.id)
+                    old_features = Features.objects.get(id=house.features.id)
                     self.update_features(instance=old_features, partial=True)
-            except HouseFeatures.DoesNotExist:
+            except Features.DoesNotExist:
                 pass
 
             house_serializer = HouseCRUDSerializer(data=request.data, instance=house, partial=True)
@@ -108,8 +108,14 @@ class SearchHouseView(SearchMixin):
         "address__state":["iexact"],
         "address__city":["iexact"],
         "features__balcony":["exact"],
-        "features__number_of_bathrooms":["exact"],
-        "features__number_of_bedrooms":["exact"],
+        "features__bathrooms":["exact"],
+        "features__bedrooms":["exact"],
         "is_negotiable":["exact"],
         "price":["exact"]
     }
+
+
+class ImagesView(ListCreateAPIView):
+    serializer_class = ImagesSerializer
+    parser_classes = [FormParser, MultiPartParser]
+    queryset = Images.objects.all()
