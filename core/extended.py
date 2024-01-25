@@ -1,4 +1,5 @@
 from datetime import timedelta
+import os
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=59),
@@ -68,3 +69,39 @@ SPECTACULAR_SETTINGS = {
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
 }
+
+
+# CELERY SETTINGS
+
+CELERY_BROKER_URL=os.environ.get("CLOUD_AMPQ_URL")
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_TIMEZONE = 'Africa/Lagos'
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_DISABLE_RATE_LIMITS = True
+CELERY_TASK_RESULT_EXPIRES = 18000  
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_IMPORTS = ('your_module.tasks', )
+
+
+
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND = 'django-cache'
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}
+# CELERYBEAT_SCHEDULE = {
+#     'your-task': {
+#         'task': 'your_module.tasks.your_task',
+#         'schedule': timedelta(minutes=30),
+#     },
+# }

@@ -17,6 +17,9 @@ from datetime import timedelta
 from lib.mail import Email
 from serializers.public.reset_password import EmailSerializer, ResetPasswordSerializer
 from mails.password_reset import reset_password_html
+from .tasks import send_reset_password_email
+
+
 
 class LoginView(TokenObtainPairView, APIView):
     @classmethod
@@ -102,7 +105,6 @@ class AccountActivateView(APIView):
 
 class VerifyPasswordEmailView(APIView):
     serializer_class = EmailSerializer
-    email = Email()
     def post(self, request):
         serialiazer = self.serializer_class(data=request.data)
         serialiazer.is_valid(raise_exception=True)
@@ -113,14 +115,7 @@ class VerifyPasswordEmailView(APIView):
             account = Account.objects.get(email=email)
             payload = {"email":account.email, "id":account.id}
             token = generate_token(payload=payload)
-            print(token)
-
-            # SEND EMAIL FOR RESET PASSWORD
-            html = reset_password_html(token)
-            subject = "Password Reset | MarksFildes"
-            from_address = "benwebdev29@gmail.com"
-            self.email.set_heading(from_address=from_address, to_address=account.email, subject=subject)
-            self.email.html_email(html)
+            send_reset_password_email.delay(account.email, token)
             return Response({"message":"An email has been sent to your email"})
         except Account.DoesNotExist:
             return Response({"error":"User with email not found"}, status=status.HTTP_404_NOT_FOUND)
