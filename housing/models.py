@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 from account.models import Account
 from lib.custom_id import custom_id
 from django.utils.text import slugify
-from PIL import Image, ImageOps
 from housing.manager import PropertiesManager
 from lib.resize_image import resize_image
 
@@ -44,6 +43,7 @@ class Features(models.Model):
     bathrooms = models.IntegerField(_("number of bathrooms"), null=True, blank=True)
     packing_space = models.IntegerField(_("number of packing space"), null=True, blank=True)
     balcony = models.BooleanField(default=True)
+    more_details = models.CharField(max_length=300)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -62,6 +62,7 @@ class House(models.Model):
     type = models.ForeignKey(HouseType, on_delete=models.SET_NULL, null=True)
     description = models.TextField(_("description of the house"))
     price = models.FloatField()
+    terms_and_condition = models.CharField(max_length=400)
     is_available = models.BooleanField(default=True)
     is_sold = models.BooleanField(default=False)
     is_negotiable = models.BooleanField(default=False)

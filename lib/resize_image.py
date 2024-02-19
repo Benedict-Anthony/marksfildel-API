@@ -4,7 +4,7 @@ from django.core.files import File
 
 
 def resize_image(image):
-    size = (350, 350)
+    size = (500, 500)
     img = Image.open(image)
     img.convert("RGB")
     img.thumbnail(size)

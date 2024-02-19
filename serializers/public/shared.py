@@ -11,7 +11,9 @@ class AddressSerializer(serializers.ModelSerializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = "__all__"
+        fields = ("state","city","town","description")
+
+    # def description
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -34,3 +36,4 @@ class OwnerReadOnlySerializer(serializers.Serializer):
     last_name = serializers.CharField(read_only=True, max_length=255)
     nickname = serializers.CharField(read_only=True, max_length=255)
     contact = ContactReadOnlySerializer(read_only=True)
+    avata = serializers.ImageField()

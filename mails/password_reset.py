@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+host_url = os.environ.get("HOST_URL")
 def reset_password_html(token):
     html = f"""
 <!DOCTYPE html>
@@ -38,7 +43,7 @@ def reset_password_html(token):
       "
     >
       <a
-        href="https://localhost/auth/reset-password/{token}"
+        href="{host_url}/auth/reset-password/{token}"
         style="text-decoration: none; color: white; font-size: 18px"
         >Reset Password</a
       >
@@ -47,11 +52,7 @@ def reset_password_html(token):
       If you're unable to click the button, you can copy the link and paste in
       your browser
     </p>
-    # <a
-    #     href={token}
-    #     >Reset Password</a
-    #   >
-      <p>https://localhost/auth/reset-password/{token}</p>
+  
   </body>
 </html>
 

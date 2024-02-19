@@ -12,9 +12,22 @@ class ImagesSerializer(serializers.ModelSerializer):
 
 
 class PropertiesSerializer(serializers.ModelSerializer):
+    address = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
     class Meta:
         model = Property
-        fields = ("id", "title", "description", "price","banner","slug",)
+        fields = ("id", "title", "description", "price","banner","slug", "address", "category",)
+    def get_address(self, obj):
+        try:
+            return f'{obj.address.city}, {obj.address.state}'
+        except:
+            return ""
+
+    def get_category(self,obj):
+        try:
+            return obj.category.name
+        except:
+            return ""
 
 
 class PropertyDetailSerializer(serializers.ModelSerializer):

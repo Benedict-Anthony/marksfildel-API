@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 host_url = os.environ.get("HOST_URL")
+
+
 def email_verification_html(token): 
   html= f"""
 
@@ -59,7 +61,7 @@ def email_verification_html(token):
         </p>
 
         <a
-          href="http:localhost:3000/auth/activate/{token}"
+          href="{host_url}/auth/token/{token}"
           class="button"
           style="
             background-color: rgb(70, 70, 146);
@@ -89,7 +91,6 @@ def email_verification_html(token):
           If you are unable to click on the link, please copy and paste it into your
           web browser.
         </p>
-        {host_url}/auth/activate/{token}
         <p
           class="message"
           style="

@@ -12,7 +12,7 @@ from rest_framework.parsers import FormParser, MultiPartParser
 
 class HouseListView(ListCreateAPIView):
     serializer_class = HouseListSerializer
-    queryset = House.available.select_related("category").order_by("-created_at")
+    queryset = House.available.select_related("category", "address", "features", "type").order_by("-created_at")
 
 
     def get_serializer_class(self):
